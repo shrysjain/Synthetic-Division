@@ -73,8 +73,9 @@ def evaluate(poly):
         powers.append(int(number))
         string = string[string.index(" ") + 1:]
     else:
-        if "x" in string[1:string.index("/")]:
-            string = string[1:]
+        if "x" in string[0:string.index("/")]:
+            if string[0] != "x":
+                string = string[1:]
             if "+" in string[0:string.index("/")]:
                 string = string[string.index("+") + 2:]
                 coefficients.append(int(string[0:string.index(")")]))
