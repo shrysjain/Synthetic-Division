@@ -104,6 +104,11 @@ def evaluate(poly):
       poly.insert(-3, "?")
   except: pass
 
+  try:
+    if _temp[-4] == "-" and _temp[-3] == " ":
+      poly.insert(-2, "?")
+  except: pass
+
   poly.pop(0)
   poly.pop()
 
@@ -115,14 +120,22 @@ def evaluate(poly):
     poly[i] = poly[i].replace("?", "-")
 
   for item in poly:
-    if item.endswith("x"):
-      poly[poly.index(item)] = item + "^1"
-    if not "x" in item:
-      poly[poly.index(item)] = item + "x^0"
-    if item.startswith("x"):
-      item = "1" + item
-    if item.startswith("-x"):
-      poly[poly.index(item)] = "-1" + item[1:]
+    try:
+      if item.endswith("x"):
+        poly[poly.index(item)] = item + "^1"
+    except: pass
+    try:
+      if not "x" in item:
+        poly[poly.index(item)] = item + "x^0"
+    except: pass
+    try:
+      if item.startswith("x"):
+        item = "1" + item
+    except: pass
+    try:  
+      if item.startswith("-x"):
+        poly[poly.index(item)] = "-1" + item[1:]
+    except: pass
 
   for item in poly:
     coeff.append(item.split("x")[0])
@@ -151,6 +164,9 @@ def evaluate(poly):
   for i in range(len(coeff)):
     if str(coeff[i]).startswith("--"):
       coeff[i] = coeff[i][1:]
+
+  for i in range(len(coeff)):
+    if coeff[i] == "-": coeff[i] = "-1"
 
   coeff = [int(x) for x in coeff]
 
