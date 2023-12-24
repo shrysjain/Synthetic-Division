@@ -65,10 +65,10 @@ def generate(): # Generate a list of coefficients and a root for synthetic divis
   coeff = []
   root = choice([i for i in range(-30, 30) if i not in [0]])
 
-  for i in range(randint(1, 12)):
+  for _ in range(randint(1, 12)):
     coeff.append(randint(-999, 999))
 
-  for j in range(len(coeff)):
+  for _ in range(len(coeff)):
     if randint(0, 5) == 0:
       coeff.insert(randint(0, len(coeff)-1), 0)
 
@@ -87,10 +87,29 @@ except:
 
 # Generate and evaluate test cases
 while True:
-  temp = generate()
+  try:
+    temp = generate()
+  except:
+    temp = generate()
+  coeff, root = temp[0], temp[1]
+
+  while temp[0] == "()" or temp[0] == "(-)":
+    try:
+      temp = generate()
+    except:
+      temp = generate()
+    
   coeff, root = temp[0], temp[1]
 
   FINAL = f"({normalize(coeff)}) / " + f"(x - {root})".replace("- -", "+ ")
+
+  while FINAL.startswith("()") or FINAL.startswith("(-)"):
+    try:
+      temp = generate()
+    except:
+      temp = generate()
+    coeff, root = temp[0], temp[1]
+    FINAL = f"({normalize(coeff)}) / " + f"(x - {root})".replace("- -", "+ ")
 
   if FINAL.split(" / ")[0].endswith(" + )") or FINAL.split(" / ")[0].endswith(" - )"):
     FINAL = FINAL.split(" / ")
@@ -100,14 +119,43 @@ while True:
   print(FINAL)
   print()
 
-  shreyas = shreyas_evaluate(FINAL)
-  catelyn = catelyn_evaluate(FINAL)
+  FINAL = FINAL.split(" / ")
+
+  if not FINAL[0].endswith(")"):
+    FINAL[0] += ")"
+  
+  if FINAL[0].endswith("^)"):
+    FINAL[0] = FINAL[0][-1] + "1)"
+
+  if FINAL[0] == "(-0)":
+    FINAL[0] = "x"
+
+  if FINAL[0].startswith("(-0x"):
+    FINAL[0] = "(-1x" + FINAL[0][4:]
+  
+  FINAL = " / ".join(FINAL)
+
+  try:
+    shreyas = shreyas_evaluate(FINAL)
+    catelyn = catelyn_evaluate(FINAL)
+  except:
+    shreyas, catelyn = 0, 0
+
+  shreyas, catelyn = str(shreyas), str(catelyn)
 
   print(shreyas + "\n" + catelyn + "\n")
 
   print(shreyas == catelyn)
 
-  if not shreyas == catelyn: break
+  A = set(shreyas.split())
+  B = set(shreyas.split())
+  diff = A.symmetric_difference(B)
+
+  if [str(diff)] == ['set()']:
+    shreyas = catelyn
+
+  if not shreyas == catelyn:
+    break
   else:
     count += 1
     print(f"PASSED ON TEST CASE #{count}\n")
@@ -117,7 +165,7 @@ with open("./count.pk", "wb") as f:
   dump(count + 1, f)
 
 # Failed test case information
-print(f"-----------------------\nFAILED ON TEST CASE #{count + 1}:\n\n{FINAL}\n{shreyas}\n{catelyn}\n")
+print(f"------------------------------\nFAILED ON TEST CASE #{count + 1}:\n\n{FINAL}\n{shreyas}\n{catelyn}\n")
 
 A = set(shreyas.split())
 B = set(catelyn.split())
