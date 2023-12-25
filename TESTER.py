@@ -159,6 +159,9 @@ while True:
   else:
     count += 1
     print(f"PASSED ON TEST CASE #{count}\n")
+    if count % 100 == 0:
+      with open("./count.pk", "wb") as f:
+        dump(count + 1, f)
 
 # Pickledump test case count
 with open("./count.pk", "wb") as f:
